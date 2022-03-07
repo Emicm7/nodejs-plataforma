@@ -2,7 +2,7 @@ import { model, Schema } from 'mongoose';
 import IPerson from '../interfaces/persona.interface';
 
 const PersonaSchema = new Schema({
-    nombre: {
+    nombreCompleto: {
         type: String,
         required: [true, 'El nombre es obligatorio']
     },
