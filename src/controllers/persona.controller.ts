@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Persona from "../models/persona.model";
 import IPersona from "../interfaces/persona.interface";
+import bcrypt from 'bcrypt';
 
 // Get all resources
 export const index = async (req: Request, res: Response) => {
@@ -41,9 +42,10 @@ export const show = async (req: Request, res: Response) => {
 export const store = async (req: Request, res: Response) => {
     try {
         const { ...data } = req.body;
+        const password = await bcrypt.hash(data.contraseña, 5);
 
         const persona: IPersona = new Persona({
-            nombre: data.nombre,
+            nombreCompleto: data.nombreCompleto,
             email: data.email,
             contraseña: data.contraseña,
             telefono: data.telefono,
@@ -69,11 +71,11 @@ export const update = async (req: Request, res: Response) => {
         if (!persona)
             return res.status(404).send(`No se encontró la persona con id: ${id}`);
         
-        if (data.nombre) persona.nombre = data.nombre;
-        if (data.precio) persona.email = data.email;
-        if (data.stock) persona.contraseña = data.contraseña;
-        if (data.estado) persona.telefono = data.telefono;
-        if (data.estado) persona.rol = data.rol;
+        if (data.nombreCompleto) persona.nombreCompleto = data.nombreCompleto;
+        if (data.email) persona.email = data.email;
+        if (data.contraseña) persona.contraseña = data.contraseña;
+        if (data.telefono) persona.telefono = data.telefono;
+        if (data.rol) persona.rol = data.rol;
 
         await persona.save();
         
@@ -88,11 +90,39 @@ export const destroy = async (req: Request, res: Response) => {
     const id = req?.params?.id;
     try {
         let persona = await Persona.findByIdAndDelete(id);
-        console.log(persona);
+        
         if (!persona)
             res.status(404).send(`No se encontró la persona con id: ${id}`);
         else
             res.status(200).json(persona);
+    } catch (error) {
+        res.status(500).send('Algo salió mal.');
+    }
+};
+
+// Login a person
+export const login = async (req: Request, res: Response) => {
+    // email y contraseña
+    try {
+        
+        const { ...data } = req.body;
+        let persona = await Persona.findOne({ email: data.email});
+
+        if (!persona)
+            res.status(404).send(`No se encontró la persona con el email: ${data.email}`);
+        else{
+            // comparar contraseña de la persona con la contraseña pasada por el body
+            const sonIguales = await bcrypt.compare(data.contraseña, persona.contraseña);
+            console.log(sonIguales);
+
+            if (sonIguales) {
+
+                res.status(200).json('ok');
+            } else {
+
+                res.status(401).json('datos incorrectos');
+            }
+        }
     } catch (error) {
         res.status(500).send('Algo salió mal.');
     }
