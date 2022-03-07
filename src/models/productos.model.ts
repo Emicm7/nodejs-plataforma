@@ -18,7 +18,11 @@ const ProductoSchema = new Schema({
         type: String,
         required: [true, 'El estado es obligatorio. Valores posibles: nuevo/usado'],
         enum: ['nuevo', 'usado']
-    }
+    },
+    ventas: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Venta'
+      }]
 }, {
     timestamps: { createdAt: true, updatedAt: true }
 })
