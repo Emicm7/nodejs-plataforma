@@ -2,7 +2,7 @@ import { Document } from 'mongoose'
 
 export default interface IPerson extends Document {
   _id: string,
-  nombre: string;
+  nombreCompleto: string;
   email: string;
   contraseña: string;
   telefono: string;
