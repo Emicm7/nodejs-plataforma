@@ -110,7 +110,10 @@ export const agregarProductoToVenta = async (req: Request, res: Response) => {
         const ventaId = req?.params?.ventaId;
 
         let producto = await Producto.findById(productoId);
-        let venta = await Venta.findById(ventaId);
+        let venta = await Venta.findById(ventaId)
+        .populate({ path: 'persona_id', select: ['id', 'nombre', 'email', 'rol'] })
+        .populate({ path: 'productos', select: ['id', 'nombre', 'precio', 'stock'] })
+
 
         if (!producto || !venta)
             res.status(404).send(`No se encontró el producto o la venta indicado.`);
